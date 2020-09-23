@@ -1,22 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using JsonMultiConverter.Models;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Schema;
-using Newtonsoft.Json.Linq;
-using JsonMultiConverter.Models.JsonModels;
-using JsonMultiConverter.Interfaces;
-using Newtonsoft.Json.Schema.Generation;
 using JsonMultiConverter.Handlers;
 using AutoMapper;
 using JsonMultiConverter.Mapping;
-using System.IO;
-using JsonMultiConverter.Strategy;
+using JsonMultiConverter.Contexts;
 
 namespace JsonMultiConverter
 {
@@ -75,7 +63,6 @@ namespace JsonMultiConverter
         }";
 
         static int jsonType;
-        static int quantity;
         static bool JsonTypeChoose()
         {
             Console.WriteLine("Введите тип json (например:0, 1, 2, 3):");
@@ -87,12 +74,6 @@ namespace JsonMultiConverter
             if ((jsonType < 0) || (jsonType > 4))
             {
                 Console.WriteLine("Не верно введен тип json");
-                return false;
-            }
-            Console.WriteLine("Введите количество json файлов:");
-            if (!int.TryParse(Console.ReadLine(), out quantity))
-            {
-                Console.WriteLine("Только цифры.");
                 return false;
             }
             return true;
@@ -110,44 +91,44 @@ namespace JsonMultiConverter
         {
             try
             {
-                AutoMapperConfigure();
-                var context = new ContextStrategy();
+                AutoMapperConfigure();                
                 var baseType = new BaseTypeHandler();
                 var firstType = new FirstTypeHandler();
                 var secondType = new SecondTypeHandler();
                 var thirdType = new ThirdTypeHandler();
-                List<BasePolicy> basePolicies = new List<BasePolicy>();
-
+                BasePolicy basePolicies = new BasePolicy();
+                Context context;
                 while (!JsonTypeChoose())
                 { }
-              
+                
                 switch (jsonType)
                 {
                     case 0:
-                        context.SetStrategy(new BaseTypeStrategy());
-                        basePolicies = context.DoSomeBusinessLogic(baseType, json0, quantity);
+                        context = new Context(baseType, mapper);
+                        basePolicies = context.ReturnBaseObject(json0);
                         break;
                     case 1:
-                        context.SetStrategy(new FirstTypeStrategy(mapper));
-                        basePolicies = context.DoSomeBusinessLogic(firstType, json1, quantity);
+                        context = new Context(firstType, mapper);
+                        basePolicies = context.ReturnBaseObject(json1);
                         break;
                     case 2:
-                        context.SetStrategy(new FirstTypeStrategy(mapper));
-                        basePolicies = context.DoSomeBusinessLogic(secondType, json2, quantity);
+                        context = new Context(secondType, mapper);
+                        basePolicies = context.ReturnBaseObject(json2);
                         break;
                     case 3:
-                        context.SetStrategy(new FirstTypeStrategy(mapper));
-                        basePolicies = context.DoSomeBusinessLogic(thirdType, json3, quantity);
+                        context = new Context(thirdType, mapper);
+                        basePolicies = context.ReturnBaseObject(json3);
                         break;
-                    case 4:
+                    case 4: // Тип не определен и определяется в зависимости от переданного json
                         baseType.SetNext(firstType).SetNext(secondType).SetNext(thirdType);
                         string[] selectableJson = new string[4] { json0, json1, json2, json3 };
-                        context.SetStrategy(new FirstTypeStrategy(mapper));
-                        basePolicies = context.DoSomeBusinessLogic(baseType, selectableJson, quantity);
+                        Random rand = new Random();
+
+                        context = new Context(baseType, mapper);
+                        basePolicies = context.ReturnBaseObject(selectableJson[rand.Next(0, selectableJson.Length)]);                        
                         break;
                 }
-                foreach (var item in basePolicies)
-                    Console.WriteLine(item.Insurer.Name);
+                Console.WriteLine(JsonConvert.SerializeObject(basePolicies));
 
             }
             catch (Exception ex)
@@ -155,14 +136,6 @@ namespace JsonMultiConverter
                 Console.WriteLine(ex.Message);
             }
             Console.ReadKey();
-        }
-    }
-
-    public class PersonConverter : CustomCreationConverter<BasePolicy>
-    {
-        public override BasePolicy Create(Type objectType)
-        {
-            return new BasePolicy();
         }
     }
 }

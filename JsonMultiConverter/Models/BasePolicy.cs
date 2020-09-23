@@ -1,5 +1,4 @@
 ﻿using JsonMultiConverter.Interfaces;
-using Newtonsoft.Json;
 using System;
 
 
@@ -13,11 +12,6 @@ namespace JsonMultiConverter.Models
         public DateTime AcceptationDate { get; set; }   // Дата акцептации ДС
         public Person Insurer { get; set; }             // Страхователь
         public Vehicle Vehicle { get; set; }            // Данные Автомобиля
-
-        public object Creater(string json)
-        {
-            return JsonConvert.DeserializeObject<BasePolicy>(json);
-        }
     }
 
 }

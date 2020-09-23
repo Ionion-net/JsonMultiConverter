@@ -2,6 +2,5 @@
 {
     public interface IJsonType
     {
-        object Creater(string json);
     }
 }

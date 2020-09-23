@@ -1,5 +1,4 @@
 ﻿using JsonMultiConverter.Interfaces;
-using Newtonsoft.Json;
 
 namespace JsonMultiConverter.Models.JsonModels
 {
@@ -10,10 +9,5 @@ namespace JsonMultiConverter.Models.JsonModels
         public JsonTypeFirstVehicle Vehicle { get; set; }
         public string EffectiveDate { get; set; }
         public string ExpirationDate { get; set; }
-
-        public object Creater(string json)
-        {
-            return JsonConvert.DeserializeObject<JsonTypeSecond>(json);
-        }
     }
 }
