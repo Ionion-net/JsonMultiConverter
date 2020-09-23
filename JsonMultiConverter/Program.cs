@@ -65,7 +65,7 @@ namespace JsonMultiConverter
         static int jsonType;
         static bool JsonTypeChoose()
         {
-            Console.WriteLine("Введите тип json (например:0, 1, 2, 3):");
+            Console.WriteLine("Введите тип json (0, 1, 2, 3, 4):");
             if (!int.TryParse(Console.ReadLine(), out jsonType))
             {
                 Console.WriteLine("Не верно введен тип json");
